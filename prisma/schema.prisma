@@ -51,6 +51,10 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  days          Day[]
+  places        Location[]
+  eventTypes    String[]  @default([])
+  locationTypes String[]  @default([])
 }
 
 model VerificationToken {
@@ -59,4 +63,52 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Day {
+  id              String      @id @default(cuid())
+  userId          String      
+  user            User        @relation(fields: [userId], references: [id])
+  createdAt       DateTime    @default(now())
+  startTime       DateTime    
+  endTime         DateTime   
+  day             Int
+  month           Int
+  year            Int
+  note            String
+  AccomodationId  String?    
+  Accomodation    Location?   @relation(fields: [AccomodationId], references: [id])
+  events      Event[]
+
+  @@unique([day, month, year, userId])
+}
+
+model Event {
+  id          String        @id @default(cuid())
+  dayId       String
+  day         Day           @relation(fields: [dayId], references: [id])
+  
+  name        String
+  type        String? 
+  comment     String?
+  locationId  String?
+  location    Location?     @relation(fields: [locationId], references: [id])
+        
+}
+
+model Location {
+  id          String      @id @default(cuid())
+  userId      String      
+  user        User        @relation(fields: [userId], references: [id])
+  
+  name        String
+  address     String
+  type        String
+  comment     String?
+  
+  events      Event[]
+  days        Day[]
+
+  @@unique([userId, name])
+  @@unique([userId, address])
 }
